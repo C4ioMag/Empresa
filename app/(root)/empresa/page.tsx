@@ -34,8 +34,8 @@ const data = [
     empresa: "Wallmart",
     funcionario: "Rogério",
     cheque: "$2,500.00",
-    funcionarioPerc: "2,05",
-    empresaPerc: "52,05",
+    funcionarioPerc: "$51.25",
+    empresaPerc: "$1.273,35",
   },
 ];
 
@@ -83,8 +83,6 @@ const Company = () => {
   const [valueFuncionario, setValueFuncionario] = React.useState("");
 
   const [chequeValue, setChequeValue] = useState("");
-  const [funcionarioPercent, setFuncionarioPercent] = useState(""); // Definir o estado para o valor de porcentagem do funcionário
-  const [empresaPercent, setEmpresaPercent] = useState(""); // Definir o estado para o valor de porcentagem da empresa
 
   // Função para formatar o valor do cheque
   const handleChequeChange = (e) => {
@@ -96,34 +94,6 @@ const Company = () => {
     setChequeValue(formattedValue);
   };
 
-  // Função para formatar o valor como porcentagem
-  const formatAsPercentage = (value: string) => {
-    const formattedValue = value.replace(/[^0-9.,]/g, ""); // Permite números e vírgulas/pontos
-    if (formattedValue) {
-      let numericValue = parseFloat(formattedValue.replace(",", ".")); // Substitui vírgula por ponto para suportar decimais
-      if (!isNaN(numericValue)) {
-        // Garante que o valor seja formatado com 2 casas decimais
-        return `${numericValue.toFixed(2).replace(".", ",")}%`; // Troca o ponto por vírgula
-      }
-    }
-    return "";
-  };
-
-  // Função de controle para o input de porcentagem
-  const handleFuncionarioPercentChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const rawValue = e.target.value;
-    setFuncionarioPercent(formatAsPercentage(rawValue)); // Chama a função para formatar
-  };
-
-  const handleEmpresaPercentChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const rawValue = e.target.value;
-    setEmpresaPercent(formatAsPercentage(rawValue)); // Chama a função para formatar
-  };
-
   return (
     <div className="bg-gray-100 flex flex-col p-10 h-screen rounded-4xl">
       <h1 className="text-[25px] font-bold text-zinc-700 flex items-center gap-2">
@@ -131,7 +101,7 @@ const Company = () => {
         Empresa
       </h1>
       <div className="grid grid-cols-2 gap-5 mt-10">
-        <div className="mb-5 bg-white p-3 rounded-xl shadow-lg border-none">
+        <div className="mb-5 bg-white p-3 rounded-xl shadow-lg border-none w-full">
           <Label className="mb-3">Nome da Empresa</Label>
           <Popover open={openEmpresa} onOpenChange={setOpenEmpresa}>
             <PopoverTrigger asChild>
@@ -234,8 +204,6 @@ const Company = () => {
           <Label className="mb-3">Funcionário %</Label>
           <Input
             className="h-12 w-full bg-white border-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:ring-0 focus-visible:outline-none"
-            value={funcionarioPercent}
-            onChange={handleFuncionarioPercentChange}
             placeholder="Digite a porcentagem"
           />
         </div>
@@ -243,8 +211,6 @@ const Company = () => {
           <Label className="mb-3">Empresa %</Label>
           <Input
             className="h-12 w-full bg-white border-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:ring-0 focus-visible:outline-none"
-            value={empresaPercent}
-            onChange={handleEmpresaPercentChange}
             placeholder="Digite a porcentagem"
           />
         </div>
