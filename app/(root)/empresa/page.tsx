@@ -101,7 +101,7 @@ const Company = () => {
         Empresa
       </h1>
       <div className="grid grid-cols-2 gap-5 mt-10">
-        <div className="mb-5 bg-white p-3 rounded-xl shadow-lg border-none w-full">
+        <div className="mb-5 bg-white p-3 rounded-xl shadow-lg border-none">
           <Label className="mb-3">Nome da Empresa</Label>
           <Popover open={openEmpresa} onOpenChange={setOpenEmpresa}>
             <PopoverTrigger asChild>
