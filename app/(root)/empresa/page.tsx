@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Command,
   CommandEmpty,
@@ -29,69 +29,123 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Pen, Trash2 } from "lucide-react";
-const data = [
-  {
-    empresa: "Wallmart",
-    funcionario: "Rogério",
-    cheque: "$2,500.00",
-    funcionarioPerc: "$51.25",
-    empresaPerc: "$1.273,35",
-  },
-];
 
-const empresas = [
-  {
-    name: "Wallmart",
-  },
-  {
-    name: "Amazon",
-  },
-  {
-    name: "Apple",
-  },
-  {
-    name: "Google",
-  },
-  {
-    name: "Tesla",
-  },
-];
+interface ChequeItem {
+  idCheque: number;
+  empresa: string;
+  funcionario: string;
+  cheque: string;
+  empresaPerc: number;
+  funcionarioPerc: number;
+}
 
-const funcionarios = [
-  {
-    func: "Ana",
-  },
-  {
-    func: "Rodrigo",
-  },
-  {
-    func: "Alberto",
-  },
-  {
-    func: "Guilherme",
-  },
-  {
-    func: "Túlio",
-  },
-];
+interface Empresa {
+  id: number;
+  name: string;
+}
+
+interface Funcionario {
+  id: number;
+  func: string;
+}
 
 const Company = () => {
-  const [openEmpresa, setOpenEmpresa] = React.useState(false);
-  const [valueEmpresa, setValueEmpresa] = React.useState("");
-
-  const [openFuncionario, setOpenFuncionario] = React.useState(false);
-  const [valueFuncionario, setValueFuncionario] = React.useState("");
-
+  const [openEmpresa, setOpenEmpresa] = useState(false);
+  const [valueEmpresa, setValueEmpresa] = useState("");
+  const [openFuncionario, setOpenFuncionario] = useState(false);
+  const [valueFuncionario, setValueFuncionario] = useState("");
   const [chequeValue, setChequeValue] = useState("");
+  const [empresaPerc, setEmpresaPerc] = useState<number>(0);
+  const [funcionarioPerc, setFuncionarioPerc] = useState<number>(0);
+  const [data, setData] = useState<ChequeItem[]>([]);
+  const [empresas, setEmpresas] = useState<Empresa[]>([]);
+  const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
-  // Função para formatar o valor do cheque
-  const handleChequeChange = (e) => {
-    const rawValue = e.target.value.replace(/\D/g, ""); // Remove tudo que não for número
-    const formattedValue = new Intl.NumberFormat("en-US", {
+  // Fetch empresas e funcionários
+  useEffect(() => {
+    const fetchEmpresas = async () => {
+      const res = await fetch("/api/company");
+      const json = await res.json();
+      setEmpresas(json);
+    };
+
+    const fetchFuncionarios = async () => {
+      const res = await fetch("/api/employee");
+      const json = await res.json();
+      setFuncionarios(json);
+    };
+
+    const fetchData = async () => {
+      const res = await fetch("/api/cheque");
+      const json = await res.json();
+      setData(json);
+    };
+
+    fetchEmpresas();
+    fetchFuncionarios();
+    fetchData();
+  }, []);
+
+  const handleChequeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, "");
+    const formattedValue = new Intl.NumberFormat("pt-BR", {
       style: "currency",
-      currency: "USD",
-    }).format(rawValue / 100); // Divide por 100 para tratar como centavos
+      currency: "BRL",
+    }).format(Number(rawValue) / 100);
     setChequeValue(formattedValue);
+  };
+
+  const resetForm = () => {
+    setValueEmpresa("");
+    setValueFuncionario("");
+    setChequeValue("");
+    setEmpresaPerc(0); // ← Aqui
+    setFuncionarioPerc(0); // ← E aqui
+    setEditingId(null);
+  };
+
+  const handleSubmit = async () => {
+    const body = {
+      empresa: valueEmpresa,
+      funcionario: valueFuncionario,
+      cheque: chequeValue,
+      funcionarioPerc,
+      empresaPerc,
+    };
+
+    if (editingId) {
+      await fetch(`/api/cheques/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    } else {
+      await fetch("/api/cheques", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    }
+
+    const updated = await (await fetch("/api/cheques")).json();
+    setData(updated);
+    resetForm();
+  };
+
+  const handleDelete = async (id: number) => {
+    await fetch(`/api/cheques/${id}`, { method: "DELETE" });
+    const updated = await (await fetch("/api/cheques")).json();
+    setData(updated);
+  };
+
+  const handleEdit = (item: ChequeItem) => {
+    setValueEmpresa(item.empresa);
+    setValueFuncionario(item.funcionario);
+    setChequeValue(item.cheque);
+    setEmpresaPerc(item.empresaPerc);
+    setFuncionarioPerc(item.funcionarioPerc);
+    setEditingId(item.idCheque);
   };
 
   return (
@@ -105,13 +159,8 @@ const Company = () => {
           <Label className="mb-3">Nome da Empresa</Label>
           <Popover open={openEmpresa} onOpenChange={setOpenEmpresa}>
             <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={openEmpresa}
-                className="w-full justify-between"
-              >
-                {valueEmpresa ? valueEmpresa : "Select empresa..."}
+              <Button variant="outline" className="w-full justify-between">
+                {valueEmpresa || "Select empresa..."}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -123,7 +172,7 @@ const Company = () => {
                   <CommandGroup>
                     {empresas.map((empresa) => (
                       <CommandItem
-                        key={empresa.name}
+                        key={empresa.id}
                         onSelect={() => {
                           setValueEmpresa(empresa.name);
                           setOpenEmpresa(false);
@@ -150,13 +199,8 @@ const Company = () => {
           <Label className="mb-3">Nome do Funcionário</Label>
           <Popover open={openFuncionario} onOpenChange={setOpenFuncionario}>
             <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={openFuncionario}
-                className="w-full justify-between"
-              >
-                {valueFuncionario ? valueFuncionario : "Select funcionário..."}
+              <Button variant="outline" className="w-full justify-between">
+                {valueFuncionario || "Select funcionário..."}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -166,23 +210,23 @@ const Company = () => {
                 <CommandList>
                   <CommandEmpty>No empresa found.</CommandEmpty>
                   <CommandGroup>
-                    {funcionarios.map((funcionario) => (
+                    {funcionarios.map((func) => (
                       <CommandItem
-                        key={funcionario.func}
+                        key={func.id}
                         onSelect={() => {
-                          setValueFuncionario(funcionario.func);
+                          setValueFuncionario(func.func);
                           setOpenFuncionario(false);
                         }}
                       >
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            valueFuncionario === funcionario.func
+                            valueFuncionario === func.func
                               ? "opacity-100"
                               : "opacity-0"
                           )}
                         />
-                        {funcionario.func}
+                        {func.func}
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -203,6 +247,8 @@ const Company = () => {
         <div className="mb-5 bg-white p-3 rounded-xl shadow-lg border-none">
           <Label className="mb-3">Funcionário %</Label>
           <Input
+            value={funcionarioPerc}
+            onChange={(e) => setEmpresaPerc(Number(e.target.value) || 0)}
             className="h-12 w-full bg-white border-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:ring-0 focus-visible:outline-none"
             placeholder="Digite a porcentagem"
           />
@@ -210,12 +256,17 @@ const Company = () => {
         <div className="mb-5 bg-white p-3 rounded-xl shadow-lg border-none">
           <Label className="mb-3">Empresa %</Label>
           <Input
+            value={empresaPerc}
+            onChange={(e) => setEmpresaPerc(Number(e.target.value) || 0)}
             className="h-12 w-full bg-white border-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:ring-0 focus-visible:outline-none"
             placeholder="Digite a porcentagem"
           />
         </div>
-        <Button className="h-24 bg-[#7788FA] hover:bg-blue-300 cursor-pointer">
-          Salvar
+        <Button
+          onClick={handleSubmit}
+          className="h-24 bg-[#7788FA] hover:bg-blue-300 cursor-pointer"
+        >
+          {editingId ? "Atualizar" : "Salvar"}
         </Button>
       </div>
 
@@ -225,6 +276,7 @@ const Company = () => {
           <TableCaption>Lista de Todas as Empresas</TableCaption>
           <TableHeader className="bg-[#7788FA]">
             <TableRow>
+              <TableHead className="text-white font-light">Id</TableHead>
               <TableHead className="text-white font-light">Empresa</TableHead>
               <TableHead className="text-white font-light">
                 Funcionário
@@ -242,16 +294,23 @@ const Company = () => {
           <TableBody>
             {data.map((item, index) => (
               <TableRow key={index} className="hover:bg-gray-200">
+                <TableCell>{item.idCheque}</TableCell>
                 <TableCell>{item.empresa}</TableCell>
                 <TableCell>{item.funcionario}</TableCell>
                 <TableCell>{item.cheque}</TableCell>
                 <TableCell>{item.funcionarioPerc}</TableCell>
                 <TableCell>{item.empresaPerc}</TableCell>
                 <TableCell className="flex justify-end items-center gap-2">
-                  <Button className="bg-[#7788FA] hover:bg-blue-400 cursor-pointer">
+                  <Button
+                    onClick={() => handleEdit(item)}
+                    className="bg-[#7788FA] hover:bg-blue-400 cursor-pointer"
+                  >
                     <Pen />
                   </Button>
-                  <Button className="bg-red-500 hover:bg-red-300 cursor-pointer">
+                  <Button
+                    onClick={() => handleDelete(item.idCheque)}
+                    className="bg-red-500 hover:bg-red-300 cursor-pointer"
+                  >
                     <Trash2 />
                   </Button>
                 </TableCell>

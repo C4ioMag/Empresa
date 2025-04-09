@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id        Int        @id @default(autoincrement())
+  name      String
+  employees Employee[] // relação 1:N com Employee
+  cheques   Cheque[]   @relation("CompanyCheques") // <- nome da relação igual ao lado do Cheque
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Employee {
+  id        Int      @id @default(autoincrement())
+  name      String
+  companyId Int
+  company   Company  @relation(fields: [companyId], references: [id])
+  cheques   Cheque[] @relation("EmployeeCheques") // <- nome da relação igual ao lado do Cheque
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cheque {
+  id                 Int      @id @default(autoincrement())
+  cheque             String
+  employeePercentual Float
+  companyPercentual  Float
+  employeeId         Int
+  companyId          Int
+  employee           Employee @relation("EmployeeCheques", fields: [employeeId], references: [id])
+  company            Company  @relation("CompanyCheques", fields: [companyId], references: [id])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}

@@ -42,6 +42,7 @@ export type EmpresaData = {
   funcionarioPerc: string;
   empresaPerc: string;
   diaFaturado: string;
+  idCheque: string;
 };
 
 const datass: EmpresaData[] = [
@@ -52,6 +53,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Beto Carreiro",
@@ -60,6 +62,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Carrefour",
@@ -68,6 +71,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Lojas Americanas",
@@ -76,6 +80,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Extra",
@@ -84,6 +89,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Pão de Açúcar",
@@ -92,6 +98,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Wallmart",
@@ -100,6 +107,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Casas Bahia",
@@ -108,6 +116,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Submarino",
@@ -116,6 +125,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Amazon",
@@ -124,6 +134,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Wallmart",
@@ -132,6 +143,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Mercado Livre",
@@ -140,6 +152,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Renner",
@@ -148,6 +161,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "C&A",
@@ -156,6 +170,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Dafiti",
@@ -164,6 +179,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Wallmart",
@@ -172,6 +188,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Nike",
@@ -180,6 +197,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Adidas",
@@ -188,6 +206,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Puma",
@@ -196,6 +215,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
   {
     empresa: "Reebok",
@@ -204,6 +224,7 @@ const datass: EmpresaData[] = [
     funcionarioPerc: "2,05",
     empresaPerc: "52,05",
     diaFaturado: "25/03/2025",
+    idCheque: "1",
   },
 ];
 
@@ -270,6 +291,13 @@ export const columns: ColumnDef<EmpresaData>[] = [
     header: "Dia Faturado",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("diaFaturado")}</div>
+    ),
+  },
+  {
+    accessorKey: "idCheque",
+    header: "Id do Cheque",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("idCheque")}</div>
     ),
   },
   {
