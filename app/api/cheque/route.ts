@@ -4,13 +4,16 @@ import { prisma } from "@/lib/prisma";
 // Criar novo cheque
 export async function POST(request: Request) {
   try {
+    const body = await request.json();
+    console.log("Body recebido na API:", body);
+
     const {
       cheque,
       employeePercentual,
       companyPercentual,
       companyId,
       employeeId,
-    } = await request.json();
+    } = body;
 
     const newCheque = await prisma.cheque.create({
       data: {
@@ -72,7 +75,7 @@ export async function PUT(request: Request) {
     const updatedCheque = await prisma.cheque.update({
       where: { id },
       data: {
-        cheque,
+        cheque: String(cheque),
         employeePercentual: parseFloat(employeePercentual),
         companyPercentual: parseFloat(companyPercentual),
         company: {

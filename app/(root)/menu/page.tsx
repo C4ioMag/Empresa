@@ -1,9 +1,46 @@
+"use client";
+
 import { Separator } from "@/components/ui/separator";
 import { LayoutDashboard } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const Corpo = () => {
+  const [totalEmpresas, setTotalEmpresas] = useState(0);
+  const [totalFuncionarios, setTotalFuncionarios] = useState(0);
+  const [totalCheques, setTotalCheques] = useState(0);
+  const [totalDinheiro, setTotalDinheiro] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [empresasRes, funcionariosRes, chequesRes] = await Promise.all([
+          fetch("/api/company"),
+          fetch("/api/employee"),
+          fetch("/api/cheque"),
+        ]);
+
+        const empresas = await empresasRes.json();
+        const funcionarios = await funcionariosRes.json();
+        const cheques = await chequesRes.json();
+
+        setTotalEmpresas(empresas.length);
+        setTotalFuncionarios(funcionarios.length);
+        setTotalCheques(cheques.length);
+
+        const soma = cheques.reduce(
+          (acc: number, item: { cheque: string }) => acc + Number(item.cheque),
+          0
+        );
+
+        setTotalDinheiro(soma / 100); // Mostra o valor em reais
+      } catch (err) {
+        console.log("Erro ao buscar dados:", err);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <div className="bg-gray-100 p-10 h-screen rounded-4xl grid grid-cols-2 gap-10">
       {/* Coluna da esquerda */}
@@ -20,68 +57,35 @@ const Corpo = () => {
         {/* Relatórios */}
         <div className="grid grid-cols-2 gap-5">
           {/* Empresas */}
-          <div className="bg-white p-5 rounded-2xl flex flex-col items-center w-full">
-            <Image
-              src="/images/empresaLogo.svg"
-              alt="Empresa Logo"
-              width={80}
-              height={80}
-            />
-            <h1 className="mb-3 text-xl font-bold">Empresas</h1>
-            <Separator className="mb-3" />
-            <p className="mb-3 text-gray-500 font-light text-sm">
-              Último update
-            </p>
-            <p>152</p>
-          </div>
+          <CardResumo
+            titulo="Empresas"
+            imagem="/images/empresaLogo.svg"
+            quantidade={totalEmpresas}
+          />
 
           {/* Funcionários */}
-          <div className="bg-white p-5 rounded-2xl flex flex-col items-center w-full">
-            <Image
-              src="/images/funcLogo.svg"
-              alt="Empresa Logo"
-              width={80}
-              height={80}
-            />
-            <h1 className="mb-3 text-xl font-bold">Funcionários</h1>
-            <Separator className="mb-3" />
-            <p className="mb-3 text-gray-500 font-light text-sm">
-              Último update
-            </p>
-            <p>201</p>
-          </div>
+          <CardResumo
+            titulo="Funcionários"
+            imagem="/images/funcLogo.svg"
+            quantidade={totalFuncionarios}
+          />
 
-          {/* Cheque */}
-          <div className="bg-white p-5 rounded-2xl flex flex-col items-center w-full">
-            <Image
-              src="/images/chequeLogo.svg"
-              alt="Empresa Logo"
-              width={80}
-              height={80}
-            />
-            <h1 className="mb-3 text-xl font-bold">Cheques</h1>
-            <Separator className="mb-3" />
-            <p className="mb-3 text-gray-500 font-light text-sm">
-              Último update
-            </p>
-            <p>15</p>
-          </div>
+          {/* Cheques */}
+          <CardResumo
+            titulo="Cheques"
+            imagem="/images/chequeLogo.svg"
+            quantidade={totalCheques}
+          />
 
           {/* Dinheiro */}
-          <div className="bg-white p-5 rounded-2xl flex flex-col items-center w-full">
-            <Image
-              src="/images/dinheiroLogo.svg"
-              alt="Empresa Logo"
-              width={80}
-              height={80}
-            />
-            <h1 className="mb-3 text-xl font-bold">Dinheiro</h1>
-            <Separator className="mb-3" />
-            <p className="mb-3 text-gray-500 font-light text-sm">
-              Último update
-            </p>
-            <p>$150,000.00</p>
-          </div>
+          <CardResumo
+            titulo="Dinheiro"
+            imagem="/images/dinheiroLogo.svg"
+            quantidade={new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(totalDinheiro)}
+          />
         </div>
       </div>
 
@@ -168,5 +172,24 @@ const Corpo = () => {
     </div>
   );
 };
+
+// Componente auxiliar para os cards
+const CardResumo = ({
+  titulo,
+  imagem,
+  quantidade,
+}: {
+  titulo: string;
+  imagem: string;
+  quantidade: string | number;
+}) => (
+  <div className="bg-white p-5 rounded-2xl flex flex-col items-center w-full">
+    <Image src={imagem} alt={`${titulo} Logo`} width={80} height={80} />
+    <h1 className="mb-3 text-xl font-bold">{titulo}</h1>
+    <Separator className="mb-3" />
+    <p className="mb-3 text-gray-500 font-light text-sm">Último update</p>
+    <p>{quantidade}</p>
+  </div>
+);
 
 export default Corpo;

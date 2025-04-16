@@ -34,7 +34,7 @@ model Employee {
 
 model Cheque {
   id                 Int      @id @default(autoincrement())
-  cheque             String
+  cheque             Int
   employeePercentual Float
   companyPercentual  Float
   employeeId         Int

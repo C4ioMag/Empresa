@@ -28,9 +28,6 @@ const Header = () => {
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer">
-              <a href="/configuracao">Profile</a>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>

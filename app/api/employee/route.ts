@@ -46,8 +46,7 @@ export async function PUT(request: Request) {
 
 // Deletar funcionário
 export async function DELETE(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id");
+  const { id } = await request.json(); // Agora lendo o id do corpo da requisição
 
   if (!id) {
     return NextResponse.json({ error: "ID não fornecido" }, { status: 400 });

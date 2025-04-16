@@ -77,12 +77,36 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
     }
 
+    if (isNaN(Number(id))) {
+      return NextResponse.json(
+        { error: "ID deve ser um número válido" },
+        { status: 400 }
+      );
+    }
+
+    // Verificar se a empresa tem funcionários associados
+    const employees = await prisma.employee.findMany({
+      where: { companyId: Number(id) },
+    });
+
+    if (employees.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Não é possível excluir a empresa porque existem funcionários associados.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Deletar a empresa
     const deleted = await prisma.company.delete({
       where: { id: Number(id) },
     });
 
     return NextResponse.json(deleted);
   } catch (error) {
+    console.error("Erro ao deletar empresa:", error);
     return NextResponse.json(
       { error: "Erro ao deletar empresa" },
       { status: 500 }

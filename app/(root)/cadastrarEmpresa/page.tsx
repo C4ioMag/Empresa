@@ -57,8 +57,14 @@ const CadastrarEmp = () => {
 
   // Deletar empresa
   const handleDelete = async (id: number) => {
-    await fetch(`/api/company?id=${id}`, { method: "DELETE" });
-    fetchCompanies();
+    try {
+      await fetch(`/api/company?id=${id}`, {
+        method: "DELETE",
+      });
+      fetchCompanies();
+    } catch (error) {
+      console.error("Erro ao deletar empresa:", error);
+    }
   };
 
   // Preparar para editar

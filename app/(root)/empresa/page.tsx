@@ -31,12 +31,12 @@ import {
 import { Pen, Trash2 } from "lucide-react";
 
 interface ChequeItem {
-  idCheque: number;
-  empresa: string;
-  funcionario: string;
+  id: number;
   cheque: string;
-  empresaPerc: number;
-  funcionarioPerc: number;
+  companyPercentual: number;
+  employeePercentual: number;
+  company: { id: number; name: string };
+  employee: { id: number; name: string };
 }
 
 interface Empresa {
@@ -46,7 +46,7 @@ interface Empresa {
 
 interface Funcionario {
   id: number;
-  func: string;
+  name: string;
 }
 
 const Company = () => {
@@ -106,46 +106,61 @@ const Company = () => {
   };
 
   const handleSubmit = async () => {
+    // Converter o valor do chque de volta para um número sem formatação.
+    const rawChequeValue = parseFloat(chequeValue.replace(/\D/g, ""));
+    const selectedEmpresa = empresas.find((e) => e.name === valueEmpresa);
+    const selectedFuncionario = funcionarios.find(
+      (f) => f.name === valueFuncionario
+    );
+
     const body = {
-      empresa: valueEmpresa,
-      funcionario: valueFuncionario,
-      cheque: chequeValue,
-      funcionarioPerc,
-      empresaPerc,
+      cheque: rawChequeValue,
+      companyId: selectedEmpresa?.id,
+      employeeId: selectedFuncionario?.id,
+      companyPercentual: empresaPerc,
+      employeePercentual: funcionarioPerc,
     };
 
     if (editingId) {
-      await fetch(`/api/cheques/${editingId}`, {
+      await fetch(`/api/cheque/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
     } else {
-      await fetch("/api/cheques", {
+      await fetch("/api/cheque", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
     }
 
-    const updated = await (await fetch("/api/cheques")).json();
+    const updated = await (await fetch("/api/cheque")).json();
     setData(updated);
     resetForm();
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(`/api/cheques/${id}`, { method: "DELETE" });
-    const updated = await (await fetch("/api/cheques")).json();
-    setData(updated);
+    try {
+      await fetch(`/api/cheque`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const updated = await (await fetch("/api/cheque")).json();
+      setData(updated);
+    } catch (error) {
+      console.error("Erro ao deletar cheque:", error);
+    }
   };
 
   const handleEdit = (item: ChequeItem) => {
-    setValueEmpresa(item.empresa);
-    setValueFuncionario(item.funcionario);
+    setValueEmpresa(item.company?.name ?? "");
+    setValueFuncionario(item.employee?.name ?? "");
     setChequeValue(item.cheque);
-    setEmpresaPerc(item.empresaPerc);
-    setFuncionarioPerc(item.funcionarioPerc);
-    setEditingId(item.idCheque);
+    setEmpresaPerc(item.companyPercentual);
+    setFuncionarioPerc(item.employeePercentual);
+    setEditingId(item.id);
   };
 
   return (
@@ -208,25 +223,25 @@ const Company = () => {
               <Command>
                 <CommandInput placeholder="Search funcionário..." />
                 <CommandList>
-                  <CommandEmpty>No empresa found.</CommandEmpty>
+                  <CommandEmpty>Funcionários não encontrados.</CommandEmpty>
                   <CommandGroup>
                     {funcionarios.map((func) => (
                       <CommandItem
                         key={func.id}
                         onSelect={() => {
-                          setValueFuncionario(func.func);
+                          setValueFuncionario(func.name);
                           setOpenFuncionario(false);
                         }}
                       >
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            valueFuncionario === func.func
+                            valueFuncionario === func.name
                               ? "opacity-100"
                               : "opacity-0"
                           )}
                         />
-                        {func.func}
+                        {func.name}
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -248,7 +263,7 @@ const Company = () => {
           <Label className="mb-3">Funcionário %</Label>
           <Input
             value={funcionarioPerc}
-            onChange={(e) => setEmpresaPerc(Number(e.target.value) || 0)}
+            onChange={(e) => setFuncionarioPerc(Number(e.target.value) || 0)}
             className="h-12 w-full bg-white border-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:ring-0 focus-visible:outline-none"
             placeholder="Digite a porcentagem"
           />
@@ -294,12 +309,36 @@ const Company = () => {
           <TableBody>
             {data.map((item, index) => (
               <TableRow key={index} className="hover:bg-gray-200">
-                <TableCell>{item.idCheque}</TableCell>
-                <TableCell>{item.empresa}</TableCell>
-                <TableCell>{item.funcionario}</TableCell>
-                <TableCell>{item.cheque}</TableCell>
-                <TableCell>{item.funcionarioPerc}</TableCell>
-                <TableCell>{item.empresaPerc}</TableCell>
+                <TableCell>{item.id}</TableCell>
+                <TableCell>{item.company?.name}</TableCell>
+                <TableCell>{item.employee?.name}</TableCell>
+                <TableCell>
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  }).format(Number(item.cheque) / 100)}
+                </TableCell>
+                <TableCell>
+                  {item.employeePercentual}% (
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  }).format(
+                    ((Number(item.cheque) / 100) * item.employeePercentual) /
+                      100
+                  )}
+                  )
+                </TableCell>
+                <TableCell>
+                  {item.companyPercentual}% (
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  }).format(
+                    ((Number(item.cheque) / 100) * item.companyPercentual) / 100
+                  )}
+                  )
+                </TableCell>
                 <TableCell className="flex justify-end items-center gap-2">
                   <Button
                     onClick={() => handleEdit(item)}
@@ -308,7 +347,7 @@ const Company = () => {
                     <Pen />
                   </Button>
                   <Button
-                    onClick={() => handleDelete(item.idCheque)}
+                    onClick={() => handleDelete(item.id)}
                     className="bg-red-500 hover:bg-red-300 cursor-pointer"
                   >
                     <Trash2 />

@@ -137,8 +137,12 @@ const CadastrarFuncionario = () => {
   const handleDelete = async (id: number) => {
     if (confirm("Tem certeza que deseja excluir este funcionário?")) {
       try {
-        const response = await fetch(`/api/employee?id=${id}`, {
+        const response = await fetch(`/api/employee`, {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id }),
         });
 
         if (response.ok) {

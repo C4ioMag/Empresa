@@ -12,5 +12,4 @@ export const navItems = [
   },
   { name: "Empresa", icon: "/images/empresa.svg", url: "/empresa" },
   { name: "Histórico", icon: "/images/tabela.svg", url: "/tabela" },
-  { name: "Configurações", icon: "/images/settings.svg", url: "/configuracao" },
 ];

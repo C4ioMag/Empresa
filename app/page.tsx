@@ -1,9 +1,29 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Home() {
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState("");
+  const router = useRouter();
+
+  const emailPermitido = "teste@gmail.com";
+  const senhaPermitida = "123";
+
+  const handleLogin = () => {
+    if (email === emailPermitido && senha === senhaPermitida) {
+      router.push("/menu");
+    } else {
+      setErro("Usuário ou senha incorretos.");
+    }
+  };
+
   return (
     <div className="flex h-screen">
       {/* Lado esquerdo - Banner */}
@@ -39,7 +59,9 @@ export default function Home() {
           <div className="mb-5 bg-white p-3 rounded-xl shadow-lg border-none">
             <Label className="mb-3 font-light">Username</Label>
             <Input
-              type="text"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="h-8 w-full bg-white border-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:ring-0 focus-visible:outline-none"
             />
           </div>
@@ -49,16 +71,22 @@ export default function Home() {
             <Label className="mb-3 font-light">Password</Label>
             <Input
               type="password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
               className="h-8 w-full bg-white border-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:ring-0 focus-visible:outline-none"
             />
           </div>
 
+          {/* Mensagem de erro */}
+          {erro && <p className="text-red-500 mb-3">{erro}</p>}
+
           {/* Botão Login */}
-          <a href="/menu">
-            <Button className="w-full mt-5 bg-[#7788FA] text-white py-3 cursor-pointer rounded-full h-16 hover:bg-[#5a4dcf] shadow-lg shadow-[#7788FA]">
-              Login
-            </Button>
-          </a>
+          <Button
+            onClick={handleLogin}
+            className="w-full mt-5 bg-[#7788FA] text-white py-3 cursor-pointer rounded-full h-16 hover:bg-[#5a4dcf] shadow-lg shadow-[#7788FA]"
+          >
+            Login
+          </Button>
         </div>
       </div>
     </div>
