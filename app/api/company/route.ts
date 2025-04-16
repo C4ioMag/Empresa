@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(company, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Erro ao cadastrar empresa" },
       { status: 500 }
@@ -34,7 +34,7 @@ export async function GET() {
     });
 
     return NextResponse.json(companies);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Erro ao buscar empresas" },
       { status: 500 }
@@ -60,7 +60,7 @@ export async function PUT(request: Request) {
     });
 
     return NextResponse.json(updated);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Erro ao atualizar empresa" },
       { status: 500 }

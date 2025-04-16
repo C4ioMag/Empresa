@@ -75,7 +75,7 @@ export async function PUT(request: Request) {
     const updatedCheque = await prisma.cheque.update({
       where: { id },
       data: {
-        cheque: String(cheque),
+        cheque: parseInt(String(cheque), 10),
         employeePercentual: parseFloat(employeePercentual),
         companyPercentual: parseFloat(companyPercentual),
         company: {
