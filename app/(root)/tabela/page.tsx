@@ -35,64 +35,6 @@ interface ChequeItem {
   employee: { id: number; name: string };
 }
 
-// Colunas da tabela
-export const columns: ColumnDef<ChequeItem>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => <div>{row.getValue("id")}</div>,
-  },
-  {
-    id: "companyName",
-    accessorFn: (row) => row.company?.name,
-    header: "Empresa",
-    cell: ({ row }) => <div>{row.original.company?.name}</div>,
-  },
-  {
-    id: "employeeName",
-    accessorFn: (row) => row.employee?.name,
-    header: "Funcionário",
-    cell: ({ row }) => <div>{row.original.employee?.name}</div>,
-  },
-  {
-    accessorKey: "cheque",
-    header: "Cheque",
-    cell: ({ row }) => {
-      const valor = Number(row.original.cheque) / 100;
-      return new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(valor);
-    },
-  },
-  {
-    accessorKey: "employeePercentual",
-    header: "Funcionário (%)",
-    cell: ({ row }) => {
-      const cheque = Number(row.original.cheque) / 100;
-      const percent = row.original.employeePercentual;
-      const valor = (cheque * percent) / 100;
-      return `${percent}% (${new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(valor)})`;
-    },
-  },
-  {
-    accessorKey: "companyPercentual",
-    header: "Empresa (%)",
-    cell: ({ row }) => {
-      const cheque = Number(row.original.cheque) / 100;
-      const percent = row.original.companyPercentual;
-      const valor = (cheque * percent) / 100;
-      return `${percent}% (${new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(valor)})`;
-    },
-  },
-];
-
 const Tabela = () => {
   const [data, setData] = React.useState<ChequeItem[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -102,6 +44,64 @@ const Tabela = () => {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = React.useState("");
+
+  // Colunas da tabela
+  const columns: ColumnDef<ChequeItem>[] = [
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }) => <div>{row.getValue("id")}</div>,
+    },
+    {
+      id: "companyName",
+      accessorFn: (row) => row.company?.name,
+      header: "Empresa",
+      cell: ({ row }) => <div>{row.original.company?.name}</div>,
+    },
+    {
+      id: "employeeName",
+      accessorFn: (row) => row.employee?.name,
+      header: "Funcionário",
+      cell: ({ row }) => <div>{row.original.employee?.name}</div>,
+    },
+    {
+      accessorKey: "cheque",
+      header: "Cheque",
+      cell: ({ row }) => {
+        const valor = Number(row.original.cheque) / 100;
+        return new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(valor);
+      },
+    },
+    {
+      accessorKey: "employeePercentual",
+      header: "Funcionário (%)",
+      cell: ({ row }) => {
+        const cheque = Number(row.original.cheque) / 100;
+        const percent = row.original.employeePercentual;
+        const valor = (cheque * percent) / 100;
+        return `${percent}% (${new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(valor)})`;
+      },
+    },
+    {
+      accessorKey: "companyPercentual",
+      header: "Empresa (%)",
+      cell: ({ row }) => {
+        const cheque = Number(row.original.cheque) / 100;
+        const percent = row.original.companyPercentual;
+        const valor = (cheque * percent) / 100;
+        return `${percent}% (${new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(valor)})`;
+      },
+    },
+  ];
 
   // Fetch empresas e funcionários
   useEffect(() => {
