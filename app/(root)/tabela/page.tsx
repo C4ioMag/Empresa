@@ -1,5 +1,7 @@
 "use client";
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { ChevronLeft, ChevronRight, TableOfContents } from "lucide-react";
 import React, { useEffect } from "react";
 import {
@@ -133,6 +135,75 @@ const Tabela = () => {
     getSortedRowModel: getSortedRowModel(),
   });
 
+  // Fazer a exportação do PDF
+  const exportarPDF = async () => {
+    const doc = new jsPDF();
+
+    const logoUrl = "/images/logo 1.png"; // novo caminho da logo convertida
+    const logo = await fetch(logoUrl).then((res) => res.blob());
+    const reader = new FileReader();
+
+    reader.readAsDataURL(logo);
+    reader.onloadend = () => {
+      const base64data = reader.result;
+
+      if (typeof base64data === "string") {
+        doc.addImage(base64data, "PNG", 10, 10, 40, 15);
+      }
+
+      doc.setFontSize(18);
+      doc.setTextColor("#333");
+      doc.text(
+        "Relatório de Cheques",
+        doc.internal.pageSize.getWidth() / 2,
+        20,
+        {
+          align: "center",
+        }
+      );
+
+      autoTable(doc, {
+        startY: 45,
+        head: [
+          [
+            "ID",
+            "Empresa",
+            "Funcionário",
+            "Cheque",
+            "Funcionário (%)",
+            "Empresa (%)",
+          ],
+        ],
+        body: table.getFilteredRowModel().rows.map((row) => {
+          const item = row.original;
+          const cheque = Number(item.cheque) / 100;
+          const funcionarioValor = (cheque * item.employeePercentual) / 100;
+          const empresaValor = (cheque * item.companyPercentual) / 100;
+
+          return [
+            item.id,
+            item.company?.name,
+            item.employee?.name,
+            new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(cheque),
+            `${item.employeePercentual}% (${new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(funcionarioValor)})`,
+            `${item.companyPercentual}% (${new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(empresaValor)})`,
+          ];
+        }),
+      });
+
+      doc.save("historico.pdf");
+    };
+  };
+
   return (
     <div className="bg-gray-100 flex flex-col p-10 h-screen rounded-4xl">
       <h1 className="text-[25px] font-bold mb-10 text-zinc-700 flex items-center gap-2">
@@ -153,6 +224,12 @@ const Tabela = () => {
             }
             className="max-w-sm"
           />
+          <Button
+            onClick={exportarPDF}
+            className="bg-[#7788FA] text-white cursor-pointer"
+          >
+            Gerar PDF
+          </Button>
         </div>
 
         <div className="rounded-md border">
