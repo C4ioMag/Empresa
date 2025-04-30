@@ -13,8 +13,8 @@ export default function Home() {
   const [erro, setErro] = useState("");
   const router = useRouter();
 
-  const emailPermitido = "teste@gmail.com";
-  const senhaPermitida = "123";
+  const emailPermitido = "domingos@gmail.com";
+  const senhaPermitida = "domingos";
 
   const handleLogin = () => {
     if (email === emailPermitido && senha === senhaPermitida) {

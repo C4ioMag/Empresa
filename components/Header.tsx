@@ -16,7 +16,7 @@ const Header = () => {
         Welcome
       </h1>
       <div className="flex items-center min-w-fit gap-4 !important">
-        Caiky Magalhães
+        Domingos Rodrigues
         <DropdownMenu>
           <DropdownMenuTrigger className="cursor-pointer">
             <Avatar className="w-12 h-12">
